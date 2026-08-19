@@ -1,0 +1,276 @@
+/* Self-hosted: latin subset only, covers the wordmark and every glitch glyph.
+   Space Grotesk is a variable font, so one file serves both weights. */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/assets/fonts/space-grotesk-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2122,
+    U+2212, U+FEFF, U+FFFD;
+}
+
+:root {
+  --bg: #000000;
+  --fg: #f5f5f5;
+  /* #6b6b6b in the prototype was 3.94:1 on black — below the WCAG AA
+     4.5:1 floor. This is the nearest tone that passes. */
+  --dim: #757575;
+  --glitch-1: #00e5ff;
+  --glitch-2: #ff2b4e;
+  --focus: #00e5ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Fills the viewport but still scrolls if a short landscape phone
+     can't fit the content — the prototype's overflow:hidden clipped it. */
+  min-height: 100%;
+}
+
+body {
+  min-height: 100svh;
+  margin: 0;
+  padding: 2rem 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  /* Glitch transforms nudge glyphs sideways; never let that cause a
+     horizontal scrollbar. */
+  overflow-x: hidden;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 6vh, 3.5rem);
+}
+
+.wordmark {
+  position: relative;
+  font-size: clamp(2.1rem, 8vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  display: flex;
+  /* Long-press on iOS otherwise offers to select the wordmark. */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.wordmark .char {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+  animation: decode 1.8s steps(1, end) forwards;
+  animation-delay: calc(var(--i) * 80ms);
+}
+
+@keyframes decode {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Ambient flicker pass, starts once the decode-in has finished. */
+.wordmark.settled .char {
+  animation: none;
+  opacity: 1;
+}
+
+.wordmark.settled .char.g-slice {
+  animation: g-slice 400ms steps(1, end) 1;
+}
+
+@keyframes g-slice {
+  0% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+  18% {
+    clip-path: inset(0 45% 0 0);
+    transform: translateX(-3px);
+  }
+  36% {
+    clip-path: inset(0 0 0 45%);
+    transform: translateX(3px);
+  }
+  54% {
+    clip-path: inset(35% 0 40% 0);
+    transform: translateX(-2px);
+  }
+  72% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(1px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+.wordmark.settled .char.g-jitter {
+  animation: g-jitter 400ms linear 1;
+}
+
+@keyframes g-jitter {
+  0% {
+    transform: none;
+  }
+  14% {
+    transform: translate(-2px, 1px);
+  }
+  28% {
+    transform: translate(2px, -1px);
+  }
+  42% {
+    transform: translate(-1px, -2px);
+  }
+  57% {
+    transform: translate(1px, 2px);
+  }
+  71% {
+    transform: translate(-2px, 0);
+  }
+  85% {
+    transform: translate(1px, -1px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Was filter:invert(1) — on a black page that flashed a hard white block.
+   Dimming instead keeps the "signal drop" read without the strobe. */
+.wordmark.settled .char.g-invert {
+  animation: g-invert 400ms steps(2, end) 1;
+}
+
+@keyframes g-invert {
+  0% {
+    opacity: 1;
+    color: var(--fg);
+  }
+  30% {
+    opacity: 0.25;
+    color: var(--fg);
+  }
+  55% {
+    opacity: 0.85;
+    color: var(--dim);
+  }
+  78% {
+    opacity: 0.3;
+    color: var(--fg);
+  }
+  100% {
+    opacity: 1;
+    color: var(--fg);
+  }
+}
+
+.wordmark.settled .char.g-scramble {
+  animation: g-scramble 400ms steps(2, end) 1;
+}
+
+@keyframes g-scramble {
+  0% {
+    opacity: 1;
+    color: var(--fg);
+  }
+  30% {
+    opacity: 1;
+    color: var(--glitch-1);
+  }
+  60% {
+    opacity: 0.5;
+    color: var(--glitch-2);
+  }
+  100% {
+    opacity: 1;
+    color: var(--fg);
+  }
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease-out 2.3s forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.links a {
+  color: var(--dim);
+  display: inline-flex;
+  /* 44px minimum hit target; the 22px icon alone is too small to tap. */
+  padding: 0.6875rem;
+  margin: -0.6875rem;
+  border-radius: 6px;
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
+}
+
+.links a svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.links a:hover,
+.links a:focus-visible {
+  color: var(--fg);
+  transform: translateY(-2px);
+}
+
+.links a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark .char {
+    animation: none;
+    opacity: 1;
+  }
+  .wordmark.settled .char.g-slice,
+  .wordmark.settled .char.g-jitter,
+  .wordmark.settled .char.g-invert,
+  .wordmark.settled .char.g-scramble {
+    animation: none;
+  }
+  .links {
+    animation: none;
+    opacity: 1;
+  }
+  .links a:hover,
+  .links a:focus-visible {
+    transform: none;
+  }
+}

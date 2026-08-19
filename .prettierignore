@@ -1,0 +1,9 @@
+dist/
+node_modules/
+src/assets/fonts/
+*.woff2
+*.ico
+*.png
+
+# The original prototype, kept verbatim as a reference. Not ours to reformat.
+docs/prototype.html

@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC — catches links that rot over time
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Format check
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      # Structural only — asset existence and placeholder detection. No
+      # network, so this can never fail for reasons outside the repo.
+      - name: Check links and assets
+        run: npm run check:links
+
+      - name: Verify build output
+        run: |
+          test -f dist/index.html          || { echo "missing dist/index.html"; exit 1; }
+          test -f dist/assets/icons/og-image.png || { echo "missing og-image.png"; exit 1; }
+          test -f dist/assets/fonts/space-grotesk-latin.woff2 || { echo "missing font"; exit 1; }
+          test -f dist/assets/css/main.css || { echo "missing main.css"; exit 1; }
+          test -f dist/assets/js/main.js   || { echo "missing main.js"; exit 1; }
+          node --check dist/assets/js/main.js
+          # The wordmark must survive minification as literal text, or the
+          # page renders blank without JavaScript.
+          grep -q ">idiotique.org</h1>" dist/index.html || {
+            echo "wordmark text missing from built HTML"; exit 1
+          }
+          echo "build output verified"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # Reaching LinkedIn/Bluesky from a CI runner is unreliable — LinkedIn
+  # rate-limits datacenter IPs. Run it on a schedule so genuinely dead links
+  # still surface, but never block a merge on it.
+  link-health:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check outbound links reachable
+        run: npm run check:links:online
