@@ -37,7 +37,8 @@ Everything else runs on stock Node 18+.
 src/
   index.html                     markup only
   site.webmanifest               PWA/install metadata
-  robots.txt  sitemap.xml        crawler hints
+  robots.txt  sitemap.xml        crawler hints for web search
+  llms.txt                       crawler hints for AI systems
   _headers                       CSP + caching (Netlify / Cloudflare Pages)
   assets/
     css/main.css                 all styling, including the glitch keyframes

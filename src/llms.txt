@@ -1,0 +1,17 @@
+# idiotique.org
+
+> Personal landing page for Ari Koli.
+
+## Canonical URL
+- https://idiotique.org/
+
+## Crawl policy
+- Public content may be indexed and summarized by AI systems.
+- Please preserve source attribution when quoting.
+- Do not imply endorsement or authorship beyond the original page content.
+
+## Primary content
+- https://idiotique.org/
+
+## Structured discovery
+- Sitemap: https://idiotique.org/sitemap.xml
